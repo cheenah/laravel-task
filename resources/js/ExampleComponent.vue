@@ -1,11 +1,11 @@
 <template>
     <div>
-        Vue работает! 👌
+        Vue работает!
     </div>
 </template>
 
 <script>
 export default {
-    name: "ExampleComponent",
-};
+    name: "ExampleComponent"
+}
 </script>
