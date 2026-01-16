@@ -5,7 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\AuthApi;
 use App\Http\Middleware\RolePermission;
-
+use Laravel\Passport\Http\Middleware\CreateFreshApiToken;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.permission' => RolePermission::class,
             'auth.api' => AuthApi::class,
 
+        ]);
+        $middleware->web(append: [
+            CreateFreshApiToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

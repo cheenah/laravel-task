@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/login', fn () => view('app'));
 
-Route::get('/', function () {
-    return view('login');
-});
+Route::get('/{any}', fn () => view('app'))
+    ->where('any', '.*');

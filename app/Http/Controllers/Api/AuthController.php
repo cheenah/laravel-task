@@ -10,6 +10,7 @@ class AuthController extends Controller
 {
     public function auth(Request $request): \Illuminate\Http\JsonResponse
     {
+
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -17,7 +18,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            $token = $user->createToken('Personal Access Token')->accessToken;
+            $token = $user->createToken('LaravelBrowserToken')->accessToken;
 
             return response()->json([
                 'token' => $token,
