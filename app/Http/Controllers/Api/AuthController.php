@@ -18,7 +18,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            $token = $user->createToken('LaravelBrowserToken')->accessToken;
+            $token = $user->createToken('Personal Access Token')->accessToken;
 
             return response()->json([
                 'token' => $token,

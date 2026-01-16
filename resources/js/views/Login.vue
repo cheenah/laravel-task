@@ -26,6 +26,7 @@ const handleLogin = async () => {
     } catch (error) {
         if (error.response?.data?.message) {
             errorMessage.value = error.response.data.message
+            console.error(error.response.data)
         } else {
             errorMessage.value = 'Произошла ошибка. Попробуйте позже.'
         }
