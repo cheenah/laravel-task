@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
 use App\Models\Comment;
+use Laravel\Passport\Token;
 
 class TaskController extends Controller
 {
@@ -27,13 +28,18 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::guard('api')->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'nullable|string'
+            'status' => 'nullable|string|in:new,in_progress,done,cancelled'
         ]);
 
-        $data['author_id'] = Auth::id();
+        $data['author_id'] = $user->id;
+        $data['status'] = $data['status'] ?? 'new';
 
         $task = Task::create($data);
 

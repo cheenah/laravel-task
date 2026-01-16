@@ -10,12 +10,15 @@ class Task extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'title',
         'message',
-        'status'
+        'description',
+        'status',
+        'author_id'
     ];
-
+    protected $attributes = [
+        'status' => 'new'
+    ];
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime'

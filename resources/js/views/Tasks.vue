@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import CreateTaskModal from './CreateTaskModal.vue'
+import UpdateStatusModal from './UpdateStatusModal.vue'
 
 const tasks = ref([])
 const loading = ref(true)
@@ -10,6 +12,14 @@ const currentPage = ref(1)
 const perPage = ref(15)
 const statusFilter = ref('')
 const searchQuery = ref('')
+
+
+const isCreateModalOpen = ref(false)
+const isStatusModalOpen = ref(false)
+const selectedTask = ref(null)
+const isSubmitting = ref(false)
+
+
 
 const fetchTasks = async (page = 1) => {
     loading.value = true
@@ -28,7 +38,7 @@ const fetchTasks = async (page = 1) => {
         }
 
         const response = await axios.get('/api/tasks', { params })
-        console.log(tasks);
+        console.log(params);
         tasks.value = response.data.data
         pagination.value = response.data
         currentPage.value = response.data.current_page
@@ -40,6 +50,40 @@ const fetchTasks = async (page = 1) => {
         loading.value = false
     }
 }
+
+
+const handleCreateTask = async (formData) => {
+    isSubmitting.value = true
+    try {
+        const response = await axios.post('/api/tasks', formData)
+        tasks.value.unshift(response.data)
+        isCreateModalOpen.value = false
+    } catch (e) {
+        alert('Ошибка при создании')
+    } finally {
+        isSubmitting.value = false
+    }
+}
+
+const handleUpdateStatus = async (newStatus) => {
+    isSubmitting.value = true
+    try {
+        await axios.put(`/api/tasks/${selectedTask.value.id}/status`, { status: newStatus })
+        const task = tasks.value.find(t => t.id === selectedTask.value.id)
+        if (task) task.status = newStatus
+        isStatusModalOpen.value = false
+    } catch (e) {
+        alert('Ошибка обновления')
+    } finally {
+        isSubmitting.value = false
+    }
+}
+
+const openStatusModal = (task) => {
+    selectedTask.value = task
+    isStatusModalOpen.value = true
+}
+
 
 const changePage = (page) => {
     fetchTasks(page)
@@ -86,6 +130,14 @@ onMounted(() => {
             <button @click="clearFilters" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
                 Сбросить
             </button>
+
+                <button
+                    @click="isCreateModalOpen = true"
+                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors font-medium"
+                >
+                    + Новая заявка
+                </button>
+
         </div>
 
         <div class="overflow-x-auto bg-white rounded-lg shadow">
@@ -121,6 +173,16 @@ onMounted(() => {
                                                 task.status === 'cancelled' ? 'Закрыта' : task.status
                                 }}
                             </span>
+                        <button
+                            @click="openStatusModal(task)"
+                            class="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                            title="Изменить статус"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d=" eye-15.2 15.2 0 11-3 0 1.5 1.5 0 013 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
                     </td>
                     <td class="p-4 text-sm text-gray-500">
                         {{ new Date(task.created_at).toLocaleDateString() }}
@@ -163,5 +225,20 @@ onMounted(() => {
         <div v-else-if="tasks.length === 0" class="mt-8 text-center text-gray-500">
             Заявок пока нет
         </div>
+        <CreateTaskModal
+            :isOpen="isCreateModalOpen"
+            :loading="isSubmitting"
+            @close="isCreateModalOpen = false"
+            @submit="handleCreateTask"
+        />
+
+        <UpdateStatusModal
+            v-if="selectedTask"
+            :isOpen="isStatusModalOpen"
+            :loading="isSubmitting"
+            :currentStatus="selectedTask.status"
+            @close="isStatusModalOpen = false"
+            @submit="handleUpdateStatus"
+        />
     </div>
 </template>
