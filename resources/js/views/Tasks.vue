@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import router from "../router/index.js";
 import CreateTaskModal from './CreateTaskModal.vue'
 import UpdateStatusModal from './UpdateStatusModal.vue'
 
@@ -157,32 +158,33 @@ onMounted(() => {
                     <td class="p-4 text-sm">{{ task.id }}</td>
                     <td class="p-4 text-sm">{{ task.author_id || '—' }}</td>
                     <td class="p-4 text-sm">{{ task.title }}</td>
-                    <td class="p-4 text-sm">{{ task.description }}</td>
+                    <td class="p-4 text-sm max-w-xs break-words whitespace-normal">{{ task.description }}</td>
                     <td class="p-4">
-                            <span class="px-2 py-1 text-xs rounded font-medium"
-                                  :class="{
-                                    'bg-blue-100 text-blue-800': task.status === 'new',
-                                    'bg-yellow-100 text-yellow-800': task.status === 'in_progress',
-                                    'bg-green-100 text-green-800': task.status === 'done',
-                                    'bg-gray-100 text-gray-800': task.status === 'cancelled'
-                                  }">
-                                {{
-                                    task.status === 'new' ? 'Открыта' :
-                                        task.status === 'in_progress' ? 'В работе' :
-                                            task.status === 'done' ? 'Решена' :
-                                                task.status === 'cancelled' ? 'Закрыта' : task.status
-                                }}
-                            </span>
-                        <button
-                            @click="openStatusModal(task)"
-                            class="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                            title="Изменить статус"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d=" eye-15.2 15.2 0 11-3 0 1.5 1.5 0 013 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                        </button>
+                        <div class="flex items-center space-x-2">
+        <span class="px-2 py-1 text-xs rounded font-medium"
+              :class="{
+                'bg-blue-100 text-blue-800': task.status === 'new',
+                'bg-yellow-100 text-yellow-800': task.status === 'in_progress',
+                'bg-green-100 text-green-800': task.status === 'done',
+                'bg-gray-100 text-gray-800': task.status === 'cancelled'
+              }">
+            {{
+                task.status === 'new' ? 'Открыта' :
+                    task.status === 'in_progress' ? 'В работе' :
+                        task.status === 'done' ? 'Решена' :
+                            task.status === 'cancelled' ? 'Закрыта' : task.status
+            }}
+        </span>
+
+
+                            <router-link :to="{ name: 'task.show', params: { id: task.id } }"
+                                         class="p-1 text-gray-600 hover:bg-gray-100 rounded"
+                                         title="Просмотреть детали">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </router-link>
+                        </div>
                     </td>
                     <td class="p-4 text-sm text-gray-500">
                         {{ new Date(task.created_at).toLocaleDateString() }}

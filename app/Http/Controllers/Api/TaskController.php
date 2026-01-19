@@ -61,7 +61,10 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
 
-        if (Auth::user()->hasRole('user') && $task->author_id !== Auth::id()) {
+        if (
+            (Auth::user()->hasRole('user') && $task->author_id !== Auth::id() && $task->status !== 'new')
+            || Auth::user()->hasRole('manager')
+        ) {
             return response()->json(['message' => 'Доступ запрещён'], 403);
         }
 
@@ -80,7 +83,7 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
 
-        if (Auth::user()->hasRole('user') && $task->author_id !== Auth::id()) {
+        if (Auth::user()->hasRole('user')) {
             return response()->json(['message' => 'Доступ запрещён'], 403);
         }
 
@@ -96,6 +99,7 @@ class TaskController extends Controller
     public function addComment(Request $request, $id)
     {
         $task = Task::findOrFail($id);
+        $user = Auth::guard('api')->user();
 
         if (Auth::user()->hasRole('user') && $task->author_id !== Auth::id()) {
             return response()->json(['message' => 'Доступ запрещён'], 403);
@@ -106,7 +110,7 @@ class TaskController extends Controller
         ]);
 
         $comment = $task->comments()->create([
-            'user_id' => Auth::id(),
+            'author_id' => $user->id,
             'content' => $data['content']
         ]);
 

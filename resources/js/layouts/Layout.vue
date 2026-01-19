@@ -22,11 +22,16 @@
 
 
 <script setup>
+import { ref, onMounted, provide } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const router = useRouter()
-
+const me = ref(null)
+const fetchMe = async () => {
+    const { data } = await axios.get('/api/me')
+    me.value = data
+}
 const logout = async () => {
     const token = localStorage.getItem('token')
 
@@ -41,4 +46,7 @@ const logout = async () => {
     localStorage.removeItem('token')
     router.push({ name: 'Login' })
 }
+provide('me', me)
+
+onMounted(fetchMe)
 </script>

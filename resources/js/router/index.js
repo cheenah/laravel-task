@@ -13,6 +13,7 @@ const routes = [
         meta: { requiresAuth: true },
         children: [
             { path: '/tasks', name: 'Tasks', component: () => import('../views/Tasks.vue') },
+            { path: '/tasks/:id', name: 'task.show', component: () => import('../views/TaskView.vue') }
         ]
     },
 ]
